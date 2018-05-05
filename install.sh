@@ -12,6 +12,9 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 echo "neovim..."
 brew install neovim
 
+echo "vim-plug..."
+curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
 echo "tig..."
 brew install tig
 
