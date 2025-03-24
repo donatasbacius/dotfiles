@@ -1,0 +1,11 @@
+[package]
+disabled = true
+
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[gcloud]
+disabled = true
