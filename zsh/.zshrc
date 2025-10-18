@@ -80,7 +80,7 @@ source <(fzf --zsh)
 export EDITOR='nvim'
 
 # OpenVPN aliases
-alias vpnc="openvpn3 session-start --config profile-1060.ovpn"
+alias vpnc="vpncon.sh"
 alias vpnd="openvpn3 sessions-list | grep Path | awk '{print \$2}' | xargs -I {} openvpn3 session-manage -D --session-path {}"
 alias vpnl="openvpn3 sessions-list"
 
