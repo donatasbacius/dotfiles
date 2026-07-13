@@ -7,9 +7,7 @@
 -- kickstart.nvim and not kitchen-sink.nvim ;)
 
 return {
-  -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
-  -- NOTE: And you can specify dependencies as well
   dependencies = {
     -- Creates a beautiful debugger UI
     'rcarriga/nvim-dap-ui',
@@ -22,7 +20,7 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
-    'leoluz/nvim-dap-go',
+    -- 'leoluz/nvim-dap-go',
   },
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
@@ -68,6 +66,20 @@ return {
       end,
       desc = 'Debug: Set Breakpoint',
     },
+    {
+      '<leader>dw',
+      function()
+        require('dapui').eval(nil, { enter = true })
+      end,
+      desc = 'Debug: Add to Watches',
+    },
+    {
+      '<leader>de',
+      function()
+        require('dap').set_exception_breakpoints { 'all' }
+      end,
+      desc = 'Debug: Set Exception Breakpoints',
+    },
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
     {
       '<F7>',
@@ -76,10 +88,51 @@ return {
       end,
       desc = 'Debug: See last session result.',
     },
+
+    -- ap({ "n", "v" }, "<leader>dw", function() dapui.eval(nil, { enter = true }) end, "DAP Add word under cursor to Watches")
+    -- map({ "n", "v" }, "Q", function() dapui.eval() end, "DAP Peek")
   },
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
+
+    dap.adapters['pwa-node'] = {
+      id = 'pwa-node',
+      type = 'server',
+      host = 'localhost',
+      port = 43229,
+      executable = {
+        command = 'node',
+        args = { '/home/donatas/.local/share/nvim/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '43229' },
+      },
+      options = {
+        detached = false,
+      },
+    }
+
+    dap.configurations.javascript = {
+      -- {
+      --   name = 'Launch file',
+      --   type = 'pwa-node',
+      --   request = 'launch',
+      --   program = function()
+      --     local currentFilePath = vim.fn.expand '%'
+      --
+      --     return vim.fn.input('Path to executable: ', currentFilePath, 'file')
+      --   end,
+      --   cwd = '${workspaceFolder}',
+      -- },
+      {
+        name = 'Attach to process',
+        type = 'pwa-node',
+        request = 'attach',
+        port = 9229,
+        restart = true,
+        cwd = vim.fn.getcwd(),
+        sourceMaps = true,
+        protocol = 'inspector',
+      },
+    }
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
@@ -94,30 +147,27 @@ return {
       -- online, please don't ask me how to install them :)
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
-        'delve',
+        'js-debug-adapter',
       },
     }
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
-      controls = {
-        icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
-        },
+      expand_lines = true,
+      controls = { enabled = false },
+      floating = { border = 'rounded' },
+      render = {
+        max_type_length = 60,
+        max_value_lines = 200,
       },
+      layouts = { {
+        elements = {
+          { id = 'scopes', size = 1.0 },
+        },
+        size = 5,
+        position = 'bottom',
+      } },
     }
 
     -- Change breakpoint icons
@@ -135,14 +185,5 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
-    -- Install golang specific config
-    require('dap-go').setup {
-      delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
   end,
 }

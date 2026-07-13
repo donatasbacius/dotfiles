@@ -99,3 +99,7 @@ bindkey -s ^f "tmux-sessionizer\n"
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+eval "$(~/.local/bin/mise activate zsh)"
+
+# opencode
+export PATH=/home/donatas/.opencode/bin:$PATH
